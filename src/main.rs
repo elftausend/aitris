@@ -73,9 +73,7 @@ async fn main() {
     
         if piece_move(&mut piece, &mut last_update, &pieces) {
             pieces.push(Box::new(piece));
-            //piece = JLSTZS[1];
-            println!("new piece")
-            
+            piece = JLSTZS[1];
         }
 
         for piece in &mut pieces {
@@ -98,24 +96,32 @@ pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64, pieces: &[Box<dy
         piece.rotate();
     }
 
-    if get_time() - *last_update > 0.5 {
+    if get_time() - *last_update > 0.2 {
         *last_update = get_time();
         piece.down();
     }
     piece.update();
-    if check_collision(pieces, piece) {
+    if new_piece_collision(pieces, piece) {
         return true;
     }
     piece.draw();
     false
 }
 
-pub fn check_collision(pieces: &[Box<dyn Piece>], check_for: &dyn Piece) -> bool {
+pub fn new_piece_collision(pieces: &[Box<dyn Piece>], check_for: &dyn Piece) -> bool {
+    for block in check_for.blocks() {
+        let y = screen_height() - DISTANCE_FROM_WIN;
+        if block.1 + GRID_CONST >= y {
+            return true;
+        }
+    }
+
     for piece in pieces {
         let blocks = piece.blocks();
-        let check_for_blocks = check_for.blocks();
-        for (x, y) in blocks.into_iter().zip(check_for_blocks) {
-            if x == y {
+        
+        for x in check_for.blocks() {
+            let x = (x.0, x.1 + GRID_CONST);
+            if blocks.contains(&x) {
                 return true;
             }
         }
