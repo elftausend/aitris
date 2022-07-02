@@ -70,25 +70,24 @@ async fn main() {
         draw_line(DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, screen_width()-DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, BORDER_THICKNESS, LIGHTGRAY);
         draw_line(screen_width()-DISTANCE_FROM_WIN+BORDER_THICKNESS, DISTANCE_FROM_WIN, screen_width() - DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, BORDER_THICKNESS, LIGHTGRAY);
         
-        piece.move_piece();
-        piece.draw();
-        /* 
-        if piece_move(&mut piece, &mut last_update) {
+    
+        if piece_move(&mut piece, &mut last_update, &pieces) {
             pieces.push(Box::new(piece));
-            piece = JLSTZS[1];
+            //piece = JLSTZS[1];
+            println!("new piece")
             
         }
 
         for piece in &mut pieces {
             piece.draw();
-        }*/
+        }
 
         next_frame().await;
     }
 }
 
-pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64) -> bool {
-    let mut bottom = false;
+pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64, pieces: &[Box<dyn Piece>]) -> bool {
+
     if is_key_pressed(KeyCode::A) {
         piece.left()
     }
@@ -101,8 +100,25 @@ pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64) -> bool {
 
     if get_time() - *last_update > 0.5 {
         *last_update = get_time();
-        bottom = piece.down();
+        piece.down();
     }
-    piece.draw();    
-    bottom
+    piece.update();
+    if check_collision(pieces, piece) {
+        return true;
+    }
+    piece.draw();
+    false
+}
+
+pub fn check_collision(pieces: &[Box<dyn Piece>], check_for: &dyn Piece) -> bool {
+    for piece in pieces {
+        let blocks = piece.blocks();
+        let check_for_blocks = check_for.blocks();
+        for (x, y) in blocks.into_iter().zip(check_for_blocks) {
+            if x == y {
+                return true;
+            }
+        }
+    }
+    false
 }

@@ -1,6 +1,6 @@
 use macroquad::prelude::{Color, draw_rectangle};
 
-use crate::{JLSTZS, piece::Piece, GRID_HEIGHT, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST, GRID_WIDTH};
+use crate::{JLSTZS, piece::Piece, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST, GRID_WIDTH};
 
 #[derive(Debug, Clone, Copy)]
 pub struct JLSTZ {
@@ -17,26 +17,6 @@ impl JLSTZ {
             color,
             rdx: 3,
             down: -1,
-        }
-    }
-
-    pub fn move_piece(&mut self) {
-        let mut rdx = self.rdx;
-
-        let mut down = self.down;
-        for (idx, block) in self.block_pos.iter_mut().enumerate() {
-            if idx % 3 == 0 {
-                down += 1;
-                rdx = self.rdx;
-            }
-            rdx += 1;    
-            
-            if block.0 != 0. {
-                let x = DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + rdx as f32*GRID_CONST;
-                let y = DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + down as f32 * GRID_CONST;
-                *block = (x, y);
-            }
-            
         }
     }
 
@@ -61,31 +41,29 @@ impl Piece for JLSTZ {
         self.rdx -= 1;
     }
 
-    fn down(&mut self) -> bool {
-        /*let mut down = 0;
-        for value in self.block_pos {
-            if value != 0 {
-                down = value;
-                break;
-            }
-        }
-        let mut subtract = 2.;
-        if self.block_pos[6..].iter().max().unwrap() == &0 {
-            subtract = 1.;
-        }
-
-        if down as f32 >= GRID_HEIGHT - subtract {
-            return true;
-        }
-
-        for value in &mut self.block_pos {
-            if value.0 != 0. {
-                value.0 += GRID_CONST; 
-            }
-        }
-        */
+    fn down(&mut self) {
         self.down += 1;
-        false
+    }
+
+    fn update(&mut self) {
+        let mut rdx = self.rdx;
+
+        let mut down = self.down;
+        for (idx, block) in self.block_pos.iter_mut().enumerate() {
+            if idx % 3 == 0 {
+                down += 1;
+                rdx = self.rdx;
+            }
+            rdx += 1;    
+            
+            if block.0 != 0. {
+                let x = DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + rdx as f32*GRID_CONST;
+                let y = DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + down as f32 * GRID_CONST;
+
+                *block = (x, y);
+            }
+            
+        }
     }
 
     fn rotate(&mut self) {
@@ -125,6 +103,18 @@ impl Piece for JLSTZ {
             }
         }
         */
+    }
+
+    fn blocks(&self) -> [(f32, f32); 4] {
+        let mut blocks = [(0., 0.); 4];
+        let mut idx = 0;
+        for block in self.block_pos {
+            if block.0 != 0. {
+                blocks[idx] = block;
+                idx += 1;
+            }
+        }
+        blocks
     }
 
 }
