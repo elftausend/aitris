@@ -1,12 +1,12 @@
 use macroquad::prelude::{Color, draw_rectangle};
 
-use crate::{JLSTZS, piece::Piece, GRID_HEIGHT, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST};
+use crate::{JLSTZS, piece::Piece, GRID_HEIGHT, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST, GRID_WIDTH};
 
 #[derive(Debug, Clone, Copy)]
 pub struct JLSTZ {
     pub block_pos: [u8; 9],
     color: Color,
-    rdx: u8
+    rdx: i8
 }
 
 impl JLSTZ {
@@ -26,16 +26,33 @@ impl JLSTZ {
 
 impl Piece for JLSTZ {
     fn right(&mut self) {
+        if self.rdx as f32 >= GRID_WIDTH - 1. {
+            return;
+        }
         self.rdx += 1;
     }
 
     fn left(&mut self) {
+        if self.rdx < 0 {
+            return;
+        }
         self.rdx -= 1;
     }
 
     fn down(&mut self) -> bool {
-        let down = self.block_pos.iter().max().unwrap();
-        if *down as f32 >= GRID_HEIGHT - 1. {
+        let mut down = 0;
+        for value in self.block_pos {
+            if value != 0 {
+                down = value;
+                break;
+            }
+        }
+        let mut subtract = 2.;
+        if self.block_pos[6..].iter().max().unwrap() == &0 {
+            subtract = 1.;
+        }
+
+        if down as f32 >= GRID_HEIGHT - subtract {
             return false;
         }
 
