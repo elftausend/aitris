@@ -1,6 +1,6 @@
-use macroquad::prelude::{Color, draw_rectangle};
+use macroquad::prelude::Color;
 
-use crate::{JLSTZS, piece::Piece, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST, collision::{check_left_wall_collision, check_right_wall_collision}};
+use crate::{JLSTZS, piece::Piece};
 
 #[derive(Debug, Clone, Copy)]
 pub struct JLSTZ {
@@ -21,51 +21,12 @@ impl JLSTZ {
     }
 
     pub fn _draw_rand() {
-        let mut piece = JLSTZS[0].clone();
+        let piece = JLSTZS[0].clone();
         piece.draw();
     }
 }
 
 impl Piece for JLSTZ {
-    fn right(&mut self) {
-        if check_right_wall_collision(&self.block_pos) {
-            return;
-        }
-        self.rdx += 1;
-    }
-
-    fn left(&mut self) {
-        if check_left_wall_collision(&self.block_pos) {
-            return;
-        }
-        self.rdx -= 1;
-    }
-
-    fn down(&mut self) {
-        self.down += 1;
-    }
-
-    fn update(&mut self) {
-        let mut rdx = self.rdx;
-
-        let mut down = self.down;
-        for (idx, block) in self.block_pos.iter_mut().enumerate() {
-            if idx % 3 == 0 {
-                down += 1;
-                rdx = self.rdx;
-            }
-            rdx += 1;    
-            
-            if block.0 != 0. {
-                let x = DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + rdx as f32*GRID_CONST;
-                let y = DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + down as f32 * GRID_CONST;
-
-                *block = (x, y);
-            }
-            
-        }
-    }
-
     fn rotate(&mut self) {
         let a = self.block_pos[0];
         let b = self.block_pos[3];
@@ -92,25 +53,23 @@ impl Piece for JLSTZ {
                           col3[0], col3[1], col3[2]];
     }
 
-    fn draw(&mut self) {
-        for block in self.block_pos {
-            if block.0 != 0. {
-                draw_rectangle(block.0, block.1, GRID_CONST, GRID_CONST, self.color);
-            }
-            
-        }
+    fn rdx_mut(&mut self) -> &mut i8 {
+        &mut self.rdx
     }
 
-    fn blocks(&self) -> [(f32, f32); 4] {
-        let mut blocks = [(0., 0.); 4];
-        let mut idx = 0;
-        for block in self.block_pos {
-            if block.0 != 0. {
-                blocks[idx] = block;
-                idx += 1;
-            }
-        }
-        blocks
+    fn down_mut(&mut self) -> &mut i8 {
+        &mut self.down
     }
 
+    fn block_pos_mut(&mut self) -> &mut [(f32, f32)] {
+        &mut self.block_pos
+    }
+
+    fn block_pos(&self) -> &[(f32, f32)] {
+        &self.block_pos
+    }
+    
+    fn color(&self) -> Color {
+        self.color
+    }
 }

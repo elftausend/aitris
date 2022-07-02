@@ -2,11 +2,13 @@
 mod tests;
 mod piece;
 mod collision;
+mod oi;
 mod jlstz;
 
 use collision::new_piece_collision;
 use jlstz::JLSTZ;
 use macroquad::prelude::{clear_background, WHITE, next_frame, draw_line, screen_width, LIGHTGRAY, screen_height, Conf, GREEN, BLUE, ORANGE, PINK, RED, is_key_pressed, KeyCode, get_time};
+use oi::Line;
 use piece::Piece;
 use rand::{thread_rng, Rng};
 
@@ -16,7 +18,13 @@ const BORDER_THICKNESS: f32 = 3.4;
 const GRID_HEIGHT: f32 = 20.;
 const GRID_WIDTH: f32 = 10.;
 
-#[allow(dead_code)]
+const LINE: Line = Line::new([
+    (0., 0.), (0., 0.), (0., 0.), (0., 0.),
+    (1., 1.), (1., 1.), (1., 1.), (1., 1.),
+    (0., 0.), (0., 0.), (0., 0.), (0., 0.),
+    (0., 0.), (0., 0.), (0., 0.), (0., 0.),
+]);
+
 const JLSTZS: [JLSTZ; 5] = [
     JLSTZ::new([
         (0., 0.), (0., 0.), (1., 1.),
@@ -102,9 +110,6 @@ pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64, pieces: &[Box<dy
     }
 
     if is_key_pressed(KeyCode::Space) {
-        for _ in 0..12 {
-            piece.down();
-        }
     }
 
     if get_time() - *last_update > 0.2 {

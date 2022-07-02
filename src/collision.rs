@@ -1,5 +1,4 @@
 use macroquad::prelude::{screen_height, screen_width};
-
 use crate::{piece::Piece, DISTANCE_FROM_WIN, GRID_CONST};
 
 pub fn new_piece_collision(pieces: &[Box<dyn Piece>], check_for: &dyn Piece) -> bool {
