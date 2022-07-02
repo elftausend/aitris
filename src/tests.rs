@@ -1,3 +1,5 @@
+use macroquad::prelude::WHITE;
+
 use crate::JLSTZ;
 
 #[test]
@@ -6,7 +8,7 @@ fn test_jlstz() {
         0, 0, 1,
         1, 1, 1,
         0, 0, 0
-    ]);
+    ], WHITE);
 
     l.rotate();
     assert_eq!(l.block_pos, [0, 1, 0, 0, 1, 0, 0, 1, 1]);
@@ -21,7 +23,7 @@ fn test_jlstz() {
         1, 0, 0,
         1, 1, 1,
         0, 0, 0
-    ]);
+    ], WHITE);
 
     j.rotate();
     assert_eq!(j.block_pos, [0, 1, 1, 0, 1, 0, 0, 1, 0]);
@@ -36,7 +38,7 @@ fn test_jlstz() {
         0, 1, 1,
         1, 1, 0,
         0, 0, 0
-    ]);
+    ], WHITE);
 
     s.rotate();
     assert_eq!(s.block_pos, [0, 1, 0, 0, 1, 1, 0, 0, 1]);
@@ -45,7 +47,7 @@ fn test_jlstz() {
         0, 1, 0,
         1, 1, 1,
         0, 0, 0
-    ]);
+    ], WHITE);
 
     t.rotate();
     assert_eq!(t.block_pos, [0, 1, 0, 0, 1, 1, 0, 1, 0]);
@@ -54,7 +56,7 @@ fn test_jlstz() {
         1, 1, 0,
         0, 1, 1,
         0, 0, 0
-    ]);
+    ], WHITE);
 
     z.rotate();
     assert_eq!(z.block_pos, [0, 0, 1, 0, 1, 1, 0, 1, 0]);

@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests;
 
-use macroquad::prelude::{clear_background, WHITE, next_frame, draw_line, screen_width, LIGHTGRAY, screen_height, Conf, draw_rectangle, GREEN};
+use macroquad::prelude::{clear_background, WHITE, next_frame, draw_line, screen_width, LIGHTGRAY, screen_height, Conf, draw_rectangle, GREEN, Color, BLUE, ORANGE, PINK, RED};
 
 const DISTANCE_FROM_WIN: f32 = 40.;
 const GRID_CONST: f32 = 30.;
@@ -11,40 +11,42 @@ const BORDER_THICKNESS: f32 = 3.4;
 const JLSTZS: [JLSTZ; 5] = [
     JLSTZ::new([
         0, 0, 1,
-        1, 1, 1,
+        2, 2, 2,
         0, 0, 0
-    ]),
+    ], BLUE),
     JLSTZ::new([
         1, 0, 0,
         1, 1, 1,
         0, 0, 0
-    ]),
+    ], ORANGE),
     JLSTZ::new([
         0, 1, 1,
         1, 1, 0,
         0, 0, 0
-    ]),
+    ], GREEN),
     JLSTZ::new([
         0, 1, 0,
         1, 1, 1,
         0, 0, 0
-    ]),
+    ], PINK),
     JLSTZ::new([
         1, 1, 0,
         0, 1, 1,
         0, 0, 0
-    ])
+    ], RED)
 ];
 
 #[derive(Debug, Clone, Copy)]
 pub struct JLSTZ {
-    block_pos: [u8; 9]
+    block_pos: [u8; 9],
+    color: Color,
 }
 
 impl JLSTZ {
-    pub const fn new(block_pos: [u8; 9]) -> JLSTZ {
+    pub const fn new(block_pos: [u8; 9], color: Color) -> JLSTZ {
         JLSTZ {
-            block_pos
+            block_pos,
+            color
         }
     }
     pub fn rotate(&mut self) {
@@ -55,6 +57,20 @@ impl JLSTZ {
         self.block_pos = [col1[0], col1[1], col1[2],
                           col2[0], col2[1], col2[2],
                           col3[0], col3[1], col3[2]];
+    }
+
+    pub fn draw(&self) {
+        for (idx, block) in self.block_pos.into_iter().enumerate() {
+            if block == 0 {
+                continue;
+            }
+            draw_rectangle(DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + (idx+3) as f32*GRID_CONST, DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + block as f32 * GRID_CONST, GRID_CONST, GRID_CONST, self.color);
+        }
+    }
+
+    pub fn draw_rand() {
+        let piece = JLSTZS[0];
+        piece.draw();
     }
 }
 
@@ -79,16 +95,9 @@ async fn main() {
         draw_line(DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN, screen_width()-DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN, BORDER_THICKNESS, LIGHTGRAY);
         draw_line(screen_width()-DISTANCE_FROM_WIN+BORDER_THICKNESS, DISTANCE_FROM_WIN, screen_width() - DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN, BORDER_THICKNESS, LIGHTGRAY);
 
-        let piece = JLSTZS[0];
+        JLSTZ::draw_rand();
 
-        for block in piece.block_pos {
-            
-        }
 
-        for idx in 0..10 {
-            draw_rectangle(DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + idx as f32*GRID_CONST, DISTANCE_FROM_WIN + BORDER_THICKNESS / 2., GRID_CONST, GRID_CONST, GREEN);
-        }
-        
         next_frame().await;
     }
 }
