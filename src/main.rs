@@ -1,11 +1,14 @@
 #[cfg(test)]
 mod tests;
 mod piece;
+mod collision;
 mod jlstz;
 
+use collision::new_piece_collision;
 use jlstz::JLSTZ;
 use macroquad::prelude::{clear_background, WHITE, next_frame, draw_line, screen_width, LIGHTGRAY, screen_height, Conf, GREEN, BLUE, ORANGE, PINK, RED, is_key_pressed, KeyCode, get_time};
 use piece::Piece;
+use rand::{thread_rng, Rng};
 
 const DISTANCE_FROM_WIN: f32 = 40.;
 const GRID_CONST: f32 = 30.;
@@ -57,6 +60,7 @@ fn window_conf() -> Conf {
 async fn main() {
 
     let mut pieces: Vec<Box<dyn Piece>> = vec![];
+    let mut rng = thread_rng();
 
     let mut piece = JLSTZS[0];
     let mut last_update = get_time();
@@ -73,7 +77,8 @@ async fn main() {
     
         if piece_move(&mut piece, &mut last_update, &pieces) {
             pieces.push(Box::new(piece));
-            piece = JLSTZS[1];
+            let idx = rng.gen_range(0..4);
+            piece = JLSTZS[idx];
         }
 
         for piece in &mut pieces {
@@ -96,6 +101,12 @@ pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64, pieces: &[Box<dy
         piece.rotate();
     }
 
+    if is_key_pressed(KeyCode::Space) {
+        for _ in 0..12 {
+            piece.down();
+        }
+    }
+
     if get_time() - *last_update > 0.2 {
         *last_update = get_time();
         piece.down();
@@ -108,23 +119,3 @@ pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64, pieces: &[Box<dy
     false
 }
 
-pub fn new_piece_collision(pieces: &[Box<dyn Piece>], check_for: &dyn Piece) -> bool {
-    for block in check_for.blocks() {
-        let y = screen_height() - DISTANCE_FROM_WIN;
-        if block.1 + GRID_CONST >= y {
-            return true;
-        }
-    }
-
-    for piece in pieces {
-        let blocks = piece.blocks();
-        
-        for x in check_for.blocks() {
-            let x = (x.0, x.1 + GRID_CONST);
-            if blocks.contains(&x) {
-                return true;
-            }
-        }
-    }
-    false
-}

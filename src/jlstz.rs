@@ -1,6 +1,6 @@
-use macroquad::prelude::{Color, draw_rectangle, screen_width};
+use macroquad::prelude::{Color, draw_rectangle};
 
-use crate::{JLSTZS, piece::Piece, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST};
+use crate::{JLSTZS, piece::Piece, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST, collision::{check_left_wall_collision, check_right_wall_collision}};
 
 #[derive(Debug, Clone, Copy)]
 pub struct JLSTZ {
@@ -67,9 +67,22 @@ impl Piece for JLSTZ {
     }
 
     fn rotate(&mut self) {
-        if check_left_wall_collision(&self.block_pos) || check_right_wall_collision(&self.block_pos) {
-            return;
+        let a = self.block_pos[0];
+        let b = self.block_pos[3];
+        let c = self.block_pos[6];
+
+        if a.0 == 0. && b.0 == 0. && c.0 == 0. {
+            self.right();
         }
+
+        let a = self.block_pos[2];
+        let b = self.block_pos[5];
+        let c = self.block_pos[8];
+
+        if a.0 == 0. && b.0 == 0. && c.0 == 0. {
+            self.left();
+        }
+
         let arr = self.block_pos;
         let col1 = [arr[6], arr[3], arr[0]];
         let col2 = [arr[7], arr[4], arr[1]];
@@ -100,37 +113,4 @@ impl Piece for JLSTZ {
         blocks
     }
 
-}
-
-pub fn check_right_wall_collision(block_pos: &[(f32, f32)]) -> bool {
-    let right_wall = screen_width()-DISTANCE_FROM_WIN - GRID_CONST;
-    let a = block_pos[2];
-    let b = block_pos[5];
-    let c = block_pos[8];
-    if a.0 == 0. && b.0 == 0. && c.0 == 0. {
-        if block_pos[4].0 >= right_wall {
-            return true;
-        }
-    }
-    if a.0 >= right_wall || b.0 >= right_wall || c.0 >= right_wall {
-        return true;
-    }
-    false
-}
-
-pub fn check_left_wall_collision(block_pos: &[(f32, f32)]) -> bool {
-    let left_wall = DISTANCE_FROM_WIN + GRID_CONST;
-    let a = block_pos[0];
-    let b = block_pos[3];
-    let c = block_pos[6];
-
-    if a.0 == 0. && b.0 == 0. && c.0 == 0. {
-        if block_pos[4].0 <= left_wall {
-            return true;
-        }
-    }
-    if a.0 <= left_wall && a.0 != 0. || b.0 <= left_wall && b.0 != 0. || c.0 <= left_wall && c.0 != 0. {
-        return true;
-    }
-    false
 }
