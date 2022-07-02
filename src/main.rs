@@ -1,17 +1,23 @@
 #[cfg(test)]
 mod tests;
+mod piece;
+mod jlstz;
 
-use macroquad::prelude::{clear_background, WHITE, next_frame, draw_line, screen_width, LIGHTGRAY, screen_height, Conf, draw_rectangle, GREEN, Color, BLUE, ORANGE, PINK, RED};
+use jlstz::JLSTZ;
+use macroquad::prelude::{clear_background, WHITE, next_frame, draw_line, screen_width, LIGHTGRAY, screen_height, Conf, GREEN, BLUE, ORANGE, PINK, RED, is_key_pressed, KeyCode, get_time};
+use piece::Piece;
 
 const DISTANCE_FROM_WIN: f32 = 40.;
 const GRID_CONST: f32 = 30.;
 const BORDER_THICKNESS: f32 = 3.4;
+const GRID_HEIGHT: f32 = 20.;
+const GRID_WIDTH: f32 = 10.;
 
 #[allow(dead_code)]
 const JLSTZS: [JLSTZ; 5] = [
     JLSTZ::new([
         0, 0, 1,
-        2, 2, 2,
+        1, 1, 1,
         0, 0, 0
     ], BLUE),
     JLSTZ::new([
@@ -36,50 +42,13 @@ const JLSTZS: [JLSTZ; 5] = [
     ], RED)
 ];
 
-#[derive(Debug, Clone, Copy)]
-pub struct JLSTZ {
-    block_pos: [u8; 9],
-    color: Color,
-}
-
-impl JLSTZ {
-    pub const fn new(block_pos: [u8; 9], color: Color) -> JLSTZ {
-        JLSTZ {
-            block_pos,
-            color
-        }
-    }
-    pub fn rotate(&mut self) {
-        let arr = self.block_pos;
-        let col1 = [arr[6], arr[3], arr[0]];
-        let col2 = [arr[7], arr[4], arr[1]];
-        let col3 = [arr[8], arr[5], arr[2]];
-        self.block_pos = [col1[0], col1[1], col1[2],
-                          col2[0], col2[1], col2[2],
-                          col3[0], col3[1], col3[2]];
-    }
-
-    pub fn draw(&self) {
-        for (idx, block) in self.block_pos.into_iter().enumerate() {
-            if block == 0 {
-                continue;
-            }
-            draw_rectangle(DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + (idx+3) as f32*GRID_CONST, DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + block as f32 * GRID_CONST, GRID_CONST, GRID_CONST, self.color);
-        }
-    }
-
-    pub fn draw_rand() {
-        let piece = JLSTZS[0];
-        piece.draw();
-    }
-}
-
 fn window_conf() -> Conf {
     Conf {
         window_title: "Aitris".to_owned(),
         // window is still resizeable
         window_resizable: false,
-        window_width: (GRID_CONST * 10.0 + DISTANCE_FROM_WIN * 2.) as i32,
+        window_width: (GRID_CONST * GRID_WIDTH + DISTANCE_FROM_WIN * 2.) as i32,
+        window_height: (GRID_CONST * GRID_HEIGHT + DISTANCE_FROM_WIN * 2.) as i32,
         ..Default::default()
     }
 }
@@ -87,17 +56,37 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
 
+    let mut piece = JLSTZS[0];
+    let mut last_update = get_time();
+    
     loop {
         clear_background(WHITE);
 
         draw_line(DISTANCE_FROM_WIN, DISTANCE_FROM_WIN, screen_width()-DISTANCE_FROM_WIN + BORDER_THICKNESS, DISTANCE_FROM_WIN, BORDER_THICKNESS, LIGHTGRAY);
-        draw_line(DISTANCE_FROM_WIN, DISTANCE_FROM_WIN, DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN, BORDER_THICKNESS, LIGHTGRAY);
-        draw_line(DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN, screen_width()-DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN, BORDER_THICKNESS, LIGHTGRAY);
-        draw_line(screen_width()-DISTANCE_FROM_WIN+BORDER_THICKNESS, DISTANCE_FROM_WIN, screen_width() - DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN, BORDER_THICKNESS, LIGHTGRAY);
-
-        JLSTZ::draw_rand();
-
+        draw_line(DISTANCE_FROM_WIN, DISTANCE_FROM_WIN, DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, BORDER_THICKNESS, LIGHTGRAY);
+        draw_line(DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, screen_width()-DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, BORDER_THICKNESS, LIGHTGRAY);
+        draw_line(screen_width()-DISTANCE_FROM_WIN+BORDER_THICKNESS, DISTANCE_FROM_WIN, screen_width() - DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, BORDER_THICKNESS, LIGHTGRAY);
+        
+        piece_move(&mut piece, &mut last_update);
 
         next_frame().await;
     }
+}
+
+pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64) {
+    if is_key_pressed(KeyCode::A) {
+        piece.left()
+    }
+    if is_key_pressed(KeyCode::D) {
+        piece.right()
+    }
+    if is_key_pressed(KeyCode::W) {
+        piece.rotate();
+    }
+
+    if get_time() - *last_update > 0.5 {
+        *last_update = get_time();
+        piece.down();
+    }
+    piece.draw();    
 }

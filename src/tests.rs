@@ -1,6 +1,6 @@
 use macroquad::prelude::WHITE;
 
-use crate::JLSTZ;
+use crate::{JLSTZ, piece::Piece};
 
 #[test]
 fn test_jlstz() {
