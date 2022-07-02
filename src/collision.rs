@@ -1,7 +1,7 @@
 use macroquad::prelude::{screen_height, screen_width};
 use crate::{piece::Piece, DISTANCE_FROM_WIN, GRID_CONST};
 
-pub fn new_piece_collision(pieces: &[Box<dyn Piece>], check_for: &dyn Piece) -> bool {
+pub fn new_piece_collision(pieces: &[Box<dyn Piece>], check_for: &Box<dyn Piece>) -> bool {
     for block in check_for.blocks() {
         let y = screen_height() - DISTANCE_FROM_WIN;
         if block.1 + GRID_CONST >= y {

@@ -70,7 +70,7 @@ async fn main() {
     let mut pieces: Vec<Box<dyn Piece>> = vec![];
     let mut rng = thread_rng();
 
-    let mut piece = JLSTZS[0];
+    let mut piece: Box<dyn Piece> = Box::new(JLSTZS[0]);
     let mut last_update = get_time();
     
 
@@ -84,9 +84,14 @@ async fn main() {
         
     
         if piece_move(&mut piece, &mut last_update, &pieces) {
-            pieces.push(Box::new(piece));
-            let idx = rng.gen_range(0..4);
-            piece = JLSTZS[idx];
+            pieces.push(piece);
+            let idx = rng.gen_range(0..5);
+            if idx == 5 {
+                piece = Box::new(LINE);
+            } else {
+                piece = Box::new(JLSTZS[idx]);
+            }
+            
         }
 
         for piece in &mut pieces {
@@ -97,7 +102,7 @@ async fn main() {
     }
 }
 
-pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64, pieces: &[Box<dyn Piece>]) -> bool {
+pub fn piece_move(piece: &mut Box<dyn Piece>, last_update: &mut f64, pieces: &[Box<dyn Piece>]) -> bool {
 
     if is_key_pressed(KeyCode::A) {
         piece.left()
