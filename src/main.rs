@@ -16,29 +16,29 @@ const GRID_WIDTH: f32 = 10.;
 #[allow(dead_code)]
 const JLSTZS: [JLSTZ; 5] = [
     JLSTZ::new([
-        0, 0, 1,
-        1, 1, 1,
-        0, 0, 0
+        (0., 0.), (0., 0.), (1., 1.),
+        (1., 1.), (1., 1.), (1., 1.),
+        (0., 0.), (0., 0.), (0., 0.)
     ], BLUE),
     JLSTZ::new([
-        1, 0, 0,
-        1, 1, 1,
-        0, 0, 0
+        (1., 1.), (0., 0.), (0., 0.),
+        (1., 1.), (1., 1.), (1., 1.),
+        (0., 0.), (0., 0.), (0., 0.)
     ], ORANGE),
     JLSTZ::new([
-        0, 1, 1,
-        1, 1, 0,
-        0, 0, 0
+        (0., 0.), (1., 1.), (1., 1.),
+        (1., 1.), (1., 1.), (0., 0.),
+        (0., 0.), (0., 0.), (0., 0.)
     ], GREEN),
     JLSTZ::new([
-        0, 1, 0,
-        1, 1, 1,
-        0, 0, 0
+        (0., 0.), (1., 1.), (0., 0.),
+        (1., 1.), (1., 1.), (1., 1.),
+        (0., 0.), (0., 0.), (0., 0.)
     ], PINK),
     JLSTZ::new([
-        1, 1, 0,
-        0, 1, 1,
-        0, 0, 0
+        (1., 1.), (1., 1.), (0., 0.),
+        (0., 0.), (1., 1.), (1., 1.),
+        (0., 0.), (0., 0.), (0., 0.)
     ], RED)
 ];
 
@@ -56,9 +56,12 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
 
+    let mut pieces: Vec<Box<dyn Piece>> = vec![];
+
     let mut piece = JLSTZS[0];
     let mut last_update = get_time();
     
+
     loop {
         clear_background(WHITE);
 
@@ -67,13 +70,25 @@ async fn main() {
         draw_line(DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, screen_width()-DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, BORDER_THICKNESS, LIGHTGRAY);
         draw_line(screen_width()-DISTANCE_FROM_WIN+BORDER_THICKNESS, DISTANCE_FROM_WIN, screen_width() - DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, BORDER_THICKNESS, LIGHTGRAY);
         
-        piece_move(&mut piece, &mut last_update);
+        piece.move_piece();
+        piece.draw();
+        /* 
+        if piece_move(&mut piece, &mut last_update) {
+            pieces.push(Box::new(piece));
+            piece = JLSTZS[1];
+            
+        }
+
+        for piece in &mut pieces {
+            piece.draw();
+        }*/
 
         next_frame().await;
     }
 }
 
-pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64) {
+pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64) -> bool {
+    let mut bottom = false;
     if is_key_pressed(KeyCode::A) {
         piece.left()
     }
@@ -86,7 +101,8 @@ pub fn piece_move(piece: &mut dyn Piece, last_update: &mut f64) {
 
     if get_time() - *last_update > 0.5 {
         *last_update = get_time();
-        piece.down();
+        bottom = piece.down();
     }
     piece.draw();    
+    bottom
 }

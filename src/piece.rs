@@ -4,5 +4,5 @@ pub trait Piece {
     fn left(&mut self);
     fn down(&mut self) -> bool;
     fn rotate(&mut self);
-    fn draw(&self);
+    fn draw(&mut self);
 }
