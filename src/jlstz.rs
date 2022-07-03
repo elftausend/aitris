@@ -21,7 +21,7 @@ impl JLSTZ {
     }
 
     pub fn _draw_rand() {
-        let piece = JLSTZS[0].clone();
+        let piece = JLSTZS[0];
         piece.draw();
     }
 }
@@ -72,4 +72,5 @@ impl Piece for JLSTZ {
     fn color(&self) -> Color {
         self.color
     }
+
 }

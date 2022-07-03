@@ -1,5 +1,6 @@
-use crate::piece::Piece;
+use crate::{piece::Piece, collision::{check_left_wall_collision, check_right_wall_collision}, GRID_CONST};
 
+#[derive(Debug)]
 pub struct Line {
     block_pos: [(f32, f32); 16],
     down: i8,
@@ -18,28 +19,18 @@ impl Line {
 
 impl Piece for Line {
     fn rotate(&mut self) {
-        let a = self.block_pos[0];
-        let b = self.block_pos[4];
-        let c = self.block_pos[8];
-        let d = self.block_pos[12];
-
-        if a.0 == 0. && b.0 == 0. && c.0 == 0. && d.0 == 0. {
+        if check_left_wall_collision(self.block_pos(), -GRID_CONST) {
             self.right();
         }
 
-        let a = self.block_pos[3];
-        let b = self.block_pos[7];
-        let b = self.block_pos[11];
-        let c = self.block_pos[15];
-
-        if a.0 == 0. && b.0 == 0. && c.0 == 0. && d.0 == 0. {
-            self.left();
+        if check_right_wall_collision(self.block_pos(), GRID_CONST) {
+            self.left()
         }
 
         let arr = self.block_pos;
         let col1 = [arr[12], arr[8], arr[4], arr[0]];
         let col2 = [arr[13], arr[9], arr[5], arr[1]];
-        let col3 = [arr[12], arr[10], arr[6], arr[2]];
+        let col3 = [arr[14], arr[10], arr[6], arr[2]];
         let col4 = [arr[15], arr[11], arr[7], arr[3]];
         self.block_pos = [col1[0], col1[1], col1[2], col1[3],
                           col2[0], col2[1], col2[2], col2[3],
@@ -63,4 +54,7 @@ impl Piece for Line {
         &self.block_pos
     }
     
+    fn divider(&self) -> usize {
+        4
+    }
 }

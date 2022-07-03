@@ -1,17 +1,16 @@
+use std::{fmt::Debug, cell::RefCell};
 use macroquad::prelude::{draw_rectangle, Color};
+use crate::{collision::{check_left_wall_collision, check_right_wall_collision, new_piece_collision}, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST};
 
-use crate::{collision::{check_left_wall_collision, check_right_wall_collision}, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST};
-
-
-pub trait Piece {
+pub trait Piece: Debug {
     fn right(&mut self) {
-        if check_right_wall_collision(&self.block_pos_mut()) {
+        if check_right_wall_collision(self.block_pos_mut(), 0.) {
             return;
         }
         *self.rdx_mut() += 1;
     }
     fn left(&mut self) {
-        if check_left_wall_collision(&self.block_pos_mut()) {
+        if check_left_wall_collision(self.block_pos_mut(), 0.) {
             return;
         }
         *self.rdx_mut() -= 1;
@@ -20,12 +19,13 @@ pub trait Piece {
         *self.down_mut() += 1;
     }
     fn update(&mut self) {
+        let divider = self.divider();
         let init_rdx = *self.rdx_mut();
         let mut rdx = init_rdx;
 
         let mut down = *self.down_mut();
         for (idx, block) in self.block_pos_mut().iter_mut().enumerate() {
-            if idx % 3 == 0 {
+            if idx % divider == 0 {
                 down += 1;
                 rdx = init_rdx;
             }
@@ -40,7 +40,9 @@ pub trait Piece {
             
         }
     }
-    fn rotate(&mut self);
+    fn rotate(&mut self) {
+        return;
+    }
     fn draw(&self) {
         for block in self.block_pos() {
             if block.0 != 0. {
@@ -66,5 +68,8 @@ pub trait Piece {
     fn block_pos(&self) -> &[(f32, f32)];
     fn color(&self) -> Color {
         Color { r: 0.01, g: 0.2, b: 0.9, a: 1.0 }
+    }
+    fn divider(&self) -> usize {
+        3
     }
 }

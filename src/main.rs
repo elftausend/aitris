@@ -5,17 +5,19 @@ mod collision;
 mod oi;
 mod jlstz;
 
-use collision::new_piece_collision;
+use collision::{new_piece_collision, check_right_wall_collision, check_left_wall_collision};
 use jlstz::JLSTZ;
 use macroquad::prelude::{clear_background, WHITE, next_frame, draw_line, screen_width, LIGHTGRAY, screen_height, Conf, GREEN, BLUE, ORANGE, PINK, RED, is_key_pressed, KeyCode, get_time};
 use oi::Line;
 use piece::Piece;
 use rand::{thread_rng, Rng};
 
+use crate::collision::check_piece_collision;
+
 const DISTANCE_FROM_WIN: f32 = 40.;
-const GRID_CONST: f32 = 30.;
+const GRID_CONST: f32 = 25.;
 const BORDER_THICKNESS: f32 = 3.4;
-const GRID_HEIGHT: f32 = 20.;
+const GRID_HEIGHT: f32 = 24.;
 const GRID_WIDTH: f32 = 10.;
 
 const LINE: Line = Line::new([
@@ -70,7 +72,8 @@ async fn main() {
     let mut pieces: Vec<Box<dyn Piece>> = vec![];
     let mut rng = thread_rng();
 
-    let mut piece: Box<dyn Piece> = Box::new(JLSTZS[0]);
+    let mut piece: Box<dyn Piece> = Box::new(LINE);
+
     let mut last_update = get_time();
     
 
@@ -86,11 +89,11 @@ async fn main() {
         if piece_move(&mut piece, &mut last_update, &pieces) {
             pieces.push(piece);
             let idx = rng.gen_range(0..5);
-            if idx == 5 {
+            if idx == 4 {
                 piece = Box::new(LINE);
             } else {
                 piece = Box::new(JLSTZS[idx]);
-            }
+            }            
             
         }
 
@@ -104,17 +107,23 @@ async fn main() {
 
 pub fn piece_move(piece: &mut Box<dyn Piece>, last_update: &mut f64, pieces: &[Box<dyn Piece>]) -> bool {
 
-    if is_key_pressed(KeyCode::A) {
-        piece.left()
+    if is_key_pressed(KeyCode::A) 
+    && !check_piece_collision(pieces, piece.block_pos(), -GRID_CONST) {
+            piece.left();    
     }
-    if is_key_pressed(KeyCode::D) {
+    if is_key_pressed(KeyCode::D)
+    && !check_piece_collision(pieces, piece.block_pos(), GRID_CONST) {
         piece.right()
     }
-    if is_key_pressed(KeyCode::W) {
+    if is_key_pressed(KeyCode::W) 
+    // not optimal
+    && !check_piece_collision(pieces, piece.block_pos(), -GRID_CONST)
+    && !check_piece_collision(pieces, piece.block_pos(), GRID_CONST) {
         piece.rotate();
     }
 
     if is_key_pressed(KeyCode::Space) {
+
     }
 
     if get_time() - *last_update > 0.2 {
@@ -125,6 +134,10 @@ pub fn piece_move(piece: &mut Box<dyn Piece>, last_update: &mut f64, pieces: &[B
     if new_piece_collision(pieces, piece) {
         return true;
     }
+    /*if check_left_wall_collision(piece.block_pos(), piece.divider()) 
+    || check_right_wall_collision(piece.block_pos(), piece.divider()) {
+        return false;
+    }*/
     piece.draw();
     false
 }
