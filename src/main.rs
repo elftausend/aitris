@@ -101,14 +101,12 @@ async fn main() {
                 piece = Box::new(SQUARE);
             } else {
                 piece = Box::new(JLSTZS[idx]);
-            }            
-            
+            }                 
         }
 
         for piece in &mut pieces {
             piece.draw();
         }
-
         next_frame().await;
     }
 }
@@ -125,19 +123,26 @@ pub fn piece_move(piece: &mut Box<dyn Piece>, last_update: &mut f64, pieces: &[B
     }
     if is_key_pressed(KeyCode::W) 
     // not optimal
-    && !check_piece_collision(pieces, piece.block_pos(), -GRID_CONST)
-    && !check_piece_collision(pieces, piece.block_pos(), GRID_CONST) {
+    
+    {
+        let old_pos = piece.block_pos().to_vec();
+        let old_rdx = *piece.rdx_mut();
         piece.rotate();
+        if check_piece_collision(pieces, piece.block_pos(), GRID_CONST) 
+            || check_piece_collision(pieces, piece.block_pos(), -GRID_CONST) 
+        {
+            piece.block_pos_mut().copy_from_slice(&old_pos);
+            *piece.rdx_mut() = old_rdx;
+        }
     }
 
     if is_key_pressed(KeyCode::Space) {
         for _ in 0..24 {
             if new_piece_collision(pieces, piece) {
-                break;
-            }
+                return true;
+            }           
             piece.down();
-            piece.update();
-            
+            piece.update(); 
         }
     }
 

@@ -2,7 +2,7 @@ use macroquad::prelude::YELLOW;
 
 use crate::{piece::Piece, collision::{check_left_wall_collision, check_right_wall_collision}, GRID_CONST};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Line {
     block_pos: [(f32, f32); 16],
     down: i8,
@@ -57,7 +57,7 @@ impl Piece for Line {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Square {
     block_pos: [(f32, f32); 12],
     down: i8,
