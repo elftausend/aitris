@@ -131,7 +131,14 @@ pub fn piece_move(piece: &mut Box<dyn Piece>, last_update: &mut f64, pieces: &[B
     }
 
     if is_key_pressed(KeyCode::Space) {
-
+        for _ in 0..24 {
+            if new_piece_collision(pieces, piece) {
+                break;
+            }
+            piece.down();
+            piece.update();
+            
+        }
     }
 
     if get_time() - *last_update > 0.2 {
