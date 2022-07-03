@@ -5,7 +5,7 @@ mod collision;
 mod oi;
 mod jlstz;
 
-use collision::{new_piece_collision, check_right_wall_collision, check_left_wall_collision};
+use collision::new_piece_collision;
 use jlstz::JLSTZ;
 use macroquad::prelude::{clear_background, WHITE, next_frame, draw_line, screen_width, LIGHTGRAY, screen_height, Conf, GREEN, BLUE, ORANGE, PINK, RED, is_key_pressed, KeyCode, get_time};
 use oi::{Line, Square};

@@ -1,6 +1,6 @@
-use std::{fmt::Debug, cell::RefCell};
+use std::fmt::Debug;
 use macroquad::prelude::{draw_rectangle, Color};
-use crate::{collision::{check_left_wall_collision, check_right_wall_collision, new_piece_collision}, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST};
+use crate::{collision::{check_left_wall_collision, check_right_wall_collision}, DISTANCE_FROM_WIN, BORDER_THICKNESS, GRID_CONST};
 
 pub trait Piece: Debug {
     fn right(&mut self) {
@@ -40,9 +40,7 @@ pub trait Piece: Debug {
             
         }
     }
-    fn rotate(&mut self) {
-        return;
-    }
+    fn rotate(&mut self) {}
     fn draw(&self) {
         for block in self.block_pos() {
             if block.0 != 0. {
