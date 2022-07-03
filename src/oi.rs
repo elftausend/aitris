@@ -1,3 +1,5 @@
+use macroquad::prelude::YELLOW;
+
 use crate::{piece::Piece, collision::{check_left_wall_collision, check_right_wall_collision}, GRID_CONST};
 
 #[derive(Debug)]
@@ -53,8 +55,42 @@ impl Piece for Line {
     fn block_pos(&self) -> &[(f32, f32)] {
         &self.block_pos
     }
-    
-    fn divider(&self) -> usize {
-        4
+}
+
+#[derive(Debug)]
+pub struct Square {
+    block_pos: [(f32, f32); 12],
+    down: i8,
+    rdx: i8,
+}
+
+impl Square {
+    pub const fn new(block_pos: [(f32, f32); 12]) -> Square {
+        Square {
+            block_pos,
+            down: -1,
+            rdx: 3,
+        }
+    }
+}
+
+impl Piece for Square {
+    fn rdx_mut(&mut self) -> &mut i8 {
+        &mut self.rdx
+    }
+
+    fn down_mut(&mut self) -> &mut i8 {
+        &mut self.down
+    }
+
+    fn block_pos_mut(&mut self) -> &mut [(f32, f32)] {
+        &mut self.block_pos
+    }
+
+    fn block_pos(&self) -> &[(f32, f32)] {
+        &self.block_pos
+    }
+    fn color(&self) -> macroquad::prelude::Color {
+        YELLOW
     }
 }

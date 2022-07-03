@@ -72,5 +72,8 @@ impl Piece for JLSTZ {
     fn color(&self) -> Color {
         self.color
     }
+    fn divider(&self) -> usize {
+        3
+    }
 
 }

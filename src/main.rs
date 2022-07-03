@@ -8,7 +8,7 @@ mod jlstz;
 use collision::{new_piece_collision, check_right_wall_collision, check_left_wall_collision};
 use jlstz::JLSTZ;
 use macroquad::prelude::{clear_background, WHITE, next_frame, draw_line, screen_width, LIGHTGRAY, screen_height, Conf, GREEN, BLUE, ORANGE, PINK, RED, is_key_pressed, KeyCode, get_time};
-use oi::Line;
+use oi::{Line, Square};
 use piece::Piece;
 use rand::{thread_rng, Rng};
 
@@ -19,6 +19,12 @@ const GRID_CONST: f32 = 25.;
 const BORDER_THICKNESS: f32 = 3.4;
 const GRID_HEIGHT: f32 = 24.;
 const GRID_WIDTH: f32 = 10.;
+
+const SQUARE: Square = Square::new([
+    (0., 0.), (1., 1.), (1., 1.), (0., 0.),
+    (0., 0.), (1., 1.), (1., 1.), (0., 0.),
+    (0., 0.), (0., 0.), (0., 0.), (0., 0.),
+]);
 
 const LINE: Line = Line::new([
     (0., 0.), (0., 0.), (0., 0.), (0., 0.),
@@ -88,9 +94,11 @@ async fn main() {
     
         if piece_move(&mut piece, &mut last_update, &pieces) {
             pieces.push(piece);
-            let idx = rng.gen_range(0..5);
-            if idx == 4 {
+            let idx = rng.gen_range(0..7);
+            if idx == 5 {
                 piece = Box::new(LINE);
+            } else if idx == 6 {
+                piece = Box::new(SQUARE);
             } else {
                 piece = Box::new(JLSTZS[idx]);
             }            

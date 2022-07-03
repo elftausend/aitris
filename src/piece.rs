@@ -67,9 +67,9 @@ pub trait Piece: Debug {
     fn block_pos_mut(&mut self) -> &mut [(f32, f32)];
     fn block_pos(&self) -> &[(f32, f32)];
     fn color(&self) -> Color {
-        Color { r: 0.01, g: 0.2, b: 0.9, a: 1.0 }
+        Color { r: 0.01, g: 0.9, b: 0.9, a: 1.0 }
     }
     fn divider(&self) -> usize {
-        3
+        4
     }
 }
