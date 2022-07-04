@@ -79,9 +79,8 @@ async fn main() {
     let mut rng = thread_rng();
 
     let mut piece: Box<dyn Piece> = Box::new(LINE);
-
+    let mut _game_over = false;
     let mut last_update = get_time();
-    
 
     loop {
         clear_background(WHITE);
@@ -91,8 +90,7 @@ async fn main() {
         draw_line(DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, screen_width()-DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, BORDER_THICKNESS, LIGHTGRAY);
         draw_line(screen_width()-DISTANCE_FROM_WIN+BORDER_THICKNESS, DISTANCE_FROM_WIN, screen_width() - DISTANCE_FROM_WIN, screen_height() - DISTANCE_FROM_WIN + BORDER_THICKNESS, BORDER_THICKNESS, LIGHTGRAY);
         
-    
-        if piece_move(&mut piece, &mut last_update, &pieces) {
+        if piece_move(&mut piece, &mut last_update, &mut pieces) {
             pieces.push(piece);
             let idx = rng.gen_range(0..7);
             if idx == 5 {
@@ -101,7 +99,11 @@ async fn main() {
                 piece = Box::new(SQUARE);
             } else {
                 piece = Box::new(JLSTZS[idx]);
-            }                 
+            }
+            piece.update();
+            if check_piece_collision(&pieces, piece.block_pos(), 0.) {
+                pieces.clear();
+            }
         }
 
         for piece in &mut pieces {
@@ -111,8 +113,7 @@ async fn main() {
     }
 }
 
-pub fn piece_move(piece: &mut Box<dyn Piece>, last_update: &mut f64, pieces: &[Box<dyn Piece>]) -> bool {
-
+pub fn piece_move(piece: &mut Box<dyn Piece>, last_update: &mut f64, pieces: &mut [Box<dyn Piece>]) -> bool {
     if is_key_pressed(KeyCode::A) 
     && !check_piece_collision(pieces, piece.block_pos(), -GRID_CONST) {
             piece.left();    
@@ -121,10 +122,7 @@ pub fn piece_move(piece: &mut Box<dyn Piece>, last_update: &mut f64, pieces: &[B
     && !check_piece_collision(pieces, piece.block_pos(), GRID_CONST) {
         piece.right()
     }
-    if is_key_pressed(KeyCode::W) 
-    // not optimal
-    
-    {
+    if is_key_pressed(KeyCode::W) {
         let old_pos = piece.block_pos().to_vec();
         let old_rdx = *piece.rdx_mut();
         piece.rotate();
@@ -151,14 +149,35 @@ pub fn piece_move(piece: &mut Box<dyn Piece>, last_update: &mut f64, pieces: &[B
         piece.down();
     }
     piece.update();
+    check_clear_row(pieces);
     if new_piece_collision(pieces, piece) {
         return true;
     }
-    /*if check_left_wall_collision(piece.block_pos(), piece.divider()) 
-    || check_right_wall_collision(piece.block_pos(), piece.divider()) {
-        return false;
-    }*/
     piece.draw();
     false
 }
 
+
+pub fn check_clear_row(pieces: &mut [Box<dyn Piece>]) {
+    for down in 0..GRID_HEIGHT as usize {
+        let mut blocks_per_row = 0;
+        let y = DISTANCE_FROM_WIN + BORDER_THICKNESS / 2. + down as f32 * GRID_CONST;
+        for piece in &mut *pieces {
+            for pos in piece.block_pos() {
+                if y == pos.1 {
+                    blocks_per_row += 1;
+                }  
+            }
+        }
+        if blocks_per_row == GRID_WIDTH as i32 {
+            for piece in &mut *pieces {
+                for pos in piece.block_pos_mut() {
+                    if y == pos.1 {
+                        *pos = (0., 0.);
+                    }
+                }
+                piece.update();
+            }   
+        }
+    }
+}
